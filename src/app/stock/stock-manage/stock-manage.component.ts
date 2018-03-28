@@ -42,7 +42,7 @@ export class Stock {
               public price: number,
               public rating: number,
               public desc: string,
-              public catagories: Array<string>) {
+              public categories: Array<string>) {
 
   }
 }
