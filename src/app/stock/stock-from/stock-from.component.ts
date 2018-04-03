@@ -13,7 +13,7 @@ export class StockFromComponent implements OnInit {
 
   formModel: FormGroup;
 
-  stock: Stock;
+  stock: Stock=new Stock(0,'',0,0,'',[]);
 
   categories = ['IT', '金融', '互联网'];
 
@@ -23,21 +23,38 @@ export class StockFromComponent implements OnInit {
 
   ngOnInit() {
     let stockId = this.routeInfo.snapshot.params['id'];
-    this.stock = this.stockService.getStock(stockId);
     /*this.stock = new Stock(1, 'SONY', 7.99, 3.5, '阿健的angular入门项目', ['IT', 'BYD']);*/
+
     let fb = new FormBuilder();
     this.formModel = fb.group(
       {
-        name: [this.stock.name, [Validators.required, Validators.minLength(3)]],
-        price: [this.stock.price, [Validators.required, this.notZero]],
-        desc: [this.stock.desc],
+        name: ['', [Validators.required, Validators.minLength(3)]],
+        price: ['', [Validators.required, this.notZero]],
+        desc: [''],
         categories: fb.array([
-          new FormControl(this.stock.categories.indexOf(this.categories[0]) != -1),
-          new FormControl(this.stock.categories.indexOf(this.categories[1]) != -1),
-          new FormControl(this.stock.categories.indexOf(this.categories[2]) != -1),
+          new FormControl(false),
+          new FormControl(false),
+          new FormControl(false),
         ], this.categoriesSelectValidator)
       }
     );
+
+    this.stockService.getStock(stockId).subscribe(
+      data => {
+        this.stock = data;
+        this.formModel.reset({
+          name: data.name,
+          price:data.price,
+          desc:data.desc,
+          categories:[
+            data.categories.indexOf(this.categories[0])!=-1,
+            data.categories.indexOf(this.categories[1])!=-1,
+            data.categories.indexOf(this.categories[2])!=-1,
+          ]
+        })
+      }
+    );
+
   }
 
   notZero(price: FormControl): any {
